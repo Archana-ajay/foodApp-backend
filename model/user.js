@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const UserSchema = new mongoose.Schema({
@@ -14,14 +13,7 @@ const UserSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: String,
-        required: true,
-        unique: true,
-        validate: {
-          validator: function (v) {
-            return /^[0-9]{10}$/.test(v);
-          },
-          message: props => `${props.value} is not a valid 10-digit phone number!`
-        },
+        required: true
       },
     password: {
         type: String,
@@ -30,9 +22,9 @@ const UserSchema = new mongoose.Schema({
     cart: {
         items: [
           {
-            foodId: {
+            restaurantID: {
               type: mongoose.Types.ObjectId,
-              ref: 'Food',
+              ref: 'Restaurant',
               required: true
             },
             quantity: { type: Number, required: true }
@@ -41,15 +33,7 @@ const UserSchema = new mongoose.Schema({
       }
 });
 
-UserSchema.pre('save', async function () {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-});
 
-UserSchema.methods.comparePassword = async function (canditatePassword) {
-    const isMatch = await bcrypt.compare(canditatePassword, this.password);
-    return isMatch;
-};
 UserSchema.methods.createJWT = function () {
     return jwt.sign(
         { userId: this._id, name: this.userName },

@@ -1,7 +1,7 @@
 const User = require('../model/user');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError } = require('../errors');
-
+const bcrypt = require("../utils/bcrypt");
 //signup
 const signUp = async (req, res) => {
     let {
@@ -11,14 +11,19 @@ const signUp = async (req, res) => {
         phoneNumber
     } = req.body;
     const emailAlreadyExists = await User.findOne({ email });
-    if (emailAlreadyExists) {
-        //check email
-        throw new BadRequestError("email already exists");
+    const mobileAlreadyExists = await User.findOne({ phoneNumber })
+    if (emailAlreadyExists && mobileAlreadyExists) {
+        throw new BadRequestError('both email and password exists')
+    } else if (emailAlreadyExists) {
+        throw new BadRequestError("email already exists");//check email
+    } else if (mobileAlreadyExists) {
+        throw new BadRequestError("mobile number already exists");//check email
     }
+    password = await bcrypt.hashPassword(password);
     const user = await User.create({userName:username,email:email,password:password,phoneNumber:phoneNumber });
     res.status(StatusCodes.CREATED).json({
         user: { name: user.userName},
-        message: 'signup successful',
+        msg: 'signup successful',
     });
 };
 
@@ -34,15 +39,18 @@ const login = async (req, res) => {
         //check email
         throw new UnauthenticatedError('Invalid Credentials');
     }
-    const isPasswordCorrect = await user.comparePassword(password);
+    const isPasswordCorrect = await bcrypt.verifyPassword(
+        password,
+        user.password
+    ); //compare password
     if (!isPasswordCorrect) {
-        //compare password
-        throw new UnauthenticatedError('Invalid password');
+        throw new UnauthenticatedError("Invalid password");
     }
+    
     const token = user.createJWT();
     res.status(StatusCodes.OK).json({
         user: { name: user.userName },
-        message: 'login successful',
+        msg: 'login successful',
         token,
     });
 };

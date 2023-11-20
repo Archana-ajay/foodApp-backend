@@ -4,19 +4,21 @@ const router = express.Router();
 
 const {
    getAllFoods,
-   getFood,
    updateFood,
    deleteFood,
-   createFood
+   createFood,
+   getAllRestaurants,
+   createRestaurant
 } = require('../controllers/food');
 
 router
     .route('/')
     .post(createFood)
     .get(getAllFoods);
-router
-    .route('/category')
-    .get(getFood);
+    router
+    .route('/restaurants')
+    .post(createRestaurant)
+    .get(getAllRestaurants);
 router.route('/:id').delete(deleteFood).patch(updateFood);
 
 module.exports = router;

@@ -1,51 +1,29 @@
-const  Food = require('../model/food');
+const  Restaurant = require('../model/restaurant');
+const Food=require('../model/food')
 const path = require('path');
 const { StatusCodes } = require('http-status-codes');
-const { NotFoundError, BadRequestError } = require('../errors');
+const { NotFoundError } = require('../errors');
 
 
-//retrieve the books created by user from database
+
 const getAllFoods = async (req, res) => {
-    // const features = new APIFeatures(
-    //     Book.find({ createdBy: req.user.userId }),
-    //     req.query
-    // ).paginate();
     const food = await Food.find()
-    const data = food.map(food => ({
-        categoryId: food.categoryId,
-        categoryName: food.categoryName,
-        photoUrl: food.photoUrl
-      }));
-    res.status(StatusCodes.OK).json({ data });
+    res.status(StatusCodes.OK).json({ data:food });
 };
 
-//create book and save it in the databse
+
 const createFood = async (req, res) => {
     const food = await Food.create({
-        restaurantId:req.body.restaurantId,
-        price:req.body.price,
+        categoryId:req.body.categoryId,
         categoryName:req.body.categoryName,
-        description:req.body.description,
-        restaurantName:req.body.restaurantName,
-        availability:req.body.availability,
         photoUrl:req.body.photoUrl,
-        openingHours:req.body.openingHours,
-        categoryId:req.body.categoryId
-
     });
-    res.status(StatusCodes.CREATED).json({ food });
+    res.status(StatusCodes.CREATED).json({ data:food });
 };
 
-//find foods available 
-const getFood = async (req, res) => {
-    const {
-        query: { categoryName: categoryName },
-    } = req;
-    const food = await Food.find({categoryName:categoryName})
-    res.status(StatusCodes.OK).json({ food });
-};
 
-//update a book in database
+
+//
 const updateFood = async (req, res) => {
     const {
         params: { id: foodId },
@@ -61,7 +39,7 @@ const updateFood = async (req, res) => {
     res.status(StatusCodes.OK).json({ food});
 };
 
-//delete a book from database
+
 const deleteFood = async (req, res) => {
     const {
         params: { id: foodId }
@@ -75,11 +53,34 @@ const deleteFood = async (req, res) => {
     res.status(StatusCodes.OK).json({ food});
 };
 
+const createRestaurant = async (req, res) => {
+    const restaurant = await Restaurant.create({
+        categoryId:req.body.categoryId,
+    restaurantID:req.body.restaurantID,
+    price:req.body.price,
+    categoryName:req.body.categoryName,
+    description:req.body.description,
+    restaurantName:req.body.restaurantName,
+    availability:req.body.availability,
+    photoUrl:req.body.photoUrl,
+    openingHours:req.body.openingHours
+    });
+    res.status(StatusCodes.CREATED).json({ data:restaurant });
+};
+
+const getAllRestaurants = async (req, res) => {
+    const restaurant = await Restaurant.find()
+    res.status(StatusCodes.OK).json({ data:restaurant});
+};
+
 module.exports = {
     getAllFoods,
-    getFood,
     updateFood,
     deleteFood,
-    createFood
+    createFood,
+    createRestaurant,
+    getAllRestaurants
 
 };
+
+

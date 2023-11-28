@@ -1,13 +1,14 @@
-const  Restaurant = require('../model/restaurant');
-const Food=require('../model/food')
-const path = require('path');
 const { StatusCodes } = require('http-status-codes');
 const { NotFoundError } = require('../errors');
+
+const db=require('../models')
+const Food=db.Food
+const  Restaurant=db.Restaurant
 
 
 
 const getAllFoods = async (req, res) => {
-    const food = await Food.find()
+    const food = await Food.findAll({})
     res.status(StatusCodes.OK).json({ data:food });
 };
 
@@ -28,11 +29,9 @@ const updateFood = async (req, res) => {
     const {
         params: { id: foodId },
     } = req;
-    const food = await Food.findOneAndUpdate(
-        { _id: foodId},
-        req.body,
-        { new: true, runValidators: true }
-    );
+    const food = await Food.update( req.body,
+        {where:{ id: foodId }}
+        );
     if (!food) {
         throw new NotFoundError(`No food with id ${foodId}`);
     }
@@ -44,9 +43,9 @@ const deleteFood = async (req, res) => {
     const {
         params: { id: foodId }
     } = req;
-    const food = await Book.findOneAndDelete({
-        _id: foodId
-    });
+    const food = await Book.destroy({where:{
+        id: foodId
+}});
     if (!food) {
         throw new NotFoundError(`No food with id ${foodId}`);
     }
@@ -56,7 +55,7 @@ const deleteFood = async (req, res) => {
 const createRestaurant = async (req, res) => {
     const restaurant = await Restaurant.create({
         categoryId:req.body.categoryId,
-    restaurantID:req.body.restaurantID,
+    restaurantId:req.body.restaurantID,
     price:req.body.price,
     categoryName:req.body.categoryName,
     description:req.body.description,
@@ -69,7 +68,7 @@ const createRestaurant = async (req, res) => {
 };
 
 const getAllRestaurants = async (req, res) => {
-    const restaurant = await Restaurant.find()
+    const restaurant = await Restaurant.findAll({})
     res.status(StatusCodes.OK).json({ data:restaurant});
 };
 

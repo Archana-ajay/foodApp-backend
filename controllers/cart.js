@@ -1,6 +1,11 @@
-const User = require('../model/user');
-
 const { StatusCodes } = require('http-status-codes');
+
+const db=require('../models')
+const User=db.User
+const Cart=db.Cart
+const Restaurant=db.Restaurant
+
+
 
 
 const addCart = async (req, res) => {
@@ -9,39 +14,57 @@ const addCart = async (req, res) => {
       quantity
   } = req.body;
   const userId = req.user.userId
-  const user = await User.findById(userId);
-
-  if (!user) {
-      throw new NotFoundError("user not found");
+  const user = await User.findByPk(userId);
+    if (!user) {
+      res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
+      return;
     }
 
-  // Check if the item with the given foodId is already in the cart
-  const existingCartItemIndex = user.cart.items.findIndex(
-      item => item.restaurantID.toString() === restaurantID
-    );
-
-    // If the item exists, update the quantity
-  if (existingCartItemIndex !== -1) {
-      user.cart.items[existingCartItemIndex].quantity += quantity;
-    } else {
-      // If the item does not exist, add a new item to the cart
-      user.cart.items.push({
-        restaurantID: restaurantID,
-        quantity:quantity
-      });
+    const restaurant = await Restaurant.findByPk(restaurantID);
+    if (!restaurant) {
+      res.status(StatusCodes.NOT_FOUND).json({ message: 'Restaurant not found' });
     }
-     // Save the updated user with the new cart
-  await user.save();
 
-  res.status(StatusCodes.OK).json({ message :'Item added to the cart successfully',cart:user.cart.items});
+   // Check if the restaurant with given id already exist or not
+   const existingCartItem = await Cart.findOne({
+    where: {
+      userId:userId,
+      restaurantId:restaurantID,
+    },
+  });
+
+  if (existingCartItem) {
+    // If the product already exists, update the quantity
+    existingCartItem.quantity += quantity;
+    await existingCartItem.save();
+  } else {
+    // If the product does not exist, add a new item to the cart
+    await Cart.create({
+      restaurantId:restaurantID,
+      quantity,
+      userId,
+    });
+  }
+
+  res.status(StatusCodes.OK).json({ message: 'Item added to the cart successfully', cart: user.carts });
 };
 
 const getCart = async (req, res) => {
 
-const food = await User.findById(req.user.userId).populate('cart.items.restaurantID');
-console.log(food.cart)
+  const userId = req.user.userId
+  const user = await Cart.findAll(
+    {
+      where: { userId: userId },
+      include: [{ model: Restaurant }],
+    }
+  )
+  
+  if (!user) {
+    res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
+    return;
+  }
 
-res.status(StatusCodes.OK).json({ data:food.cart});
+  res.status(StatusCodes.OK).json({ data: user });
 
 };
 
@@ -49,29 +72,24 @@ const removeCart = async (req, res) => {
 const userId = req.user.userId;
 const restaurantID = req.params.restaurantID; 
 
-try {
-  const user = await User.findById(userId);
+const user = await User.findByPk(userId);
 
-  if (!user) {
-    throw new NotFoundError("User not found");
-  }
+if (!user) {
+  res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
+  return;
+}
 
-  const existingCartItemIndex = user.cart.items.findIndex(
-    (item) => item.restaurantID.toString() === restaurantID
-  );
-  console.log(existingCartItemIndex);
+const deletedCartItem = await Cart.destroy({
+  where: {
+    userId:userId,
+    restaurantId:restaurantID,
+  },
+});
 
-  if (existingCartItemIndex !== -1) {
-    // If the item exists in the cart, remove it
-    user.cart.items.splice(existingCartItemIndex, 1);
-    await user.save();
-    res.status(StatusCodes.OK).json({ message: 'Item removed from the cart successfully' });
-  } else {
-    res.status(StatusCodes.NOT_FOUND).json({ message: 'Item not found in the cart' });
-  }
-} catch (error) {
-
-  res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
+if (deletedCartItem) {
+  res.status(StatusCodes.OK).json({ message: 'Item removed from the cart successfully' });
+} else {
+  res.status(StatusCodes.NOT_FOUND).json({ message: 'Item not found in the cart' });
 }
 };
 module.exports = {

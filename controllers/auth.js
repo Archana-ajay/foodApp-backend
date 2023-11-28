@@ -1,7 +1,11 @@
-const User = require('../model/user');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError } = require('../errors');
+
+const db = require('../models');
+const User=db.User;
+const jwt=require('../utils/jwt')
 const bcrypt = require("../utils/bcrypt");
+
 //signup
 const signUp = async (req, res) => {
     let {
@@ -10,19 +14,19 @@ const signUp = async (req, res) => {
         password,
         phoneNumber
     } = req.body;
-    const emailAlreadyExists = await User.findOne({ email });
-    const mobileAlreadyExists = await User.findOne({ phoneNumber })
+    const emailAlreadyExists = await User.findOne({ where: { email } });
+const mobileAlreadyExists = await User.findOne({ where: { mobileNumber:phoneNumber } });
     if (emailAlreadyExists && mobileAlreadyExists) {
-        throw new BadRequestError('both email and password exists')
+        throw new BadRequestError('both email and mobile number exists')
     } else if (emailAlreadyExists) {
         throw new BadRequestError("email already exists");//check email
     } else if (mobileAlreadyExists) {
         throw new BadRequestError("mobile number already exists");//check email
     }
     password = await bcrypt.hashPassword(password);
-    const user = await User.create({userName:username,email:email,password:password,phoneNumber:phoneNumber });
+    const user = await User.create({ username: username, email: email, password: password, mobileNumber: phoneNumber });
     res.status(StatusCodes.CREATED).json({
-        user: { name: user.userName},
+        user: { name: user.username },
         msg: 'signup successful',
     });
 };
@@ -34,22 +38,21 @@ const login = async (req, res) => {
     if (!email || !password) {
         throw new BadRequestError('Please provide email and password');
     }
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where: { email } });
     if (!user) {
-        //check email
-        throw new UnauthenticatedError('Invalid Credentials');
+        throw new UnauthenticatedError('Invalid Credentials');//check email
     }
     const isPasswordCorrect = await bcrypt.verifyPassword(
         password,
         user.password
-    ); //compare password
+    );
     if (!isPasswordCorrect) {
-        throw new UnauthenticatedError("Invalid password");
+        throw new UnauthenticatedError("Invalid password");//compare password
     }
-    
-    const token = user.createJWT();
+
+    const token = jwt.generateAccessToken(user.id);
     res.status(StatusCodes.OK).json({
-        user: { name: user.userName },
+        user: { name: user.username },
         msg: 'login successful',
         token,
     });

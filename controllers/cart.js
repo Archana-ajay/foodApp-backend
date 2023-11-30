@@ -1,4 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
+const { validationResult } = require('express-validator');
+const { BadRequestError, NotFoundError } = require('../errors');
 
 const db=require('../models')
 const User=db.User
@@ -6,9 +8,14 @@ const Cart=db.Cart
 const Restaurant=db.Restaurant
 
 
-
-
 const addCart = async (req, res) => {
+  const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => `${error.msg}`).join(',');
+
+        // Throw the error
+        throw new BadRequestError(errorMessages);;
+    }
   let {
     restaurantID,
       quantity
@@ -16,13 +23,13 @@ const addCart = async (req, res) => {
   const userId = req.user.userId
   const user = await User.findByPk(userId);
     if (!user) {
-      res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
-      return;
+     throw new NotFoundError('User not found' );
+      
     }
 
     const restaurant = await Restaurant.findByPk(restaurantID);
     if (!restaurant) {
-      res.status(StatusCodes.NOT_FOUND).json({ message: 'Restaurant not found' });
+      throw new NotFoundError('Restaurant not found' );
     }
 
    // Check if the restaurant with given id already exist or not

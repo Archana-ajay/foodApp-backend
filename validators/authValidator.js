@@ -32,7 +32,13 @@ const validateLogin=[
 
 ]
 
+const validateCart=[
+    body('restaurantID').notEmpty().withMessage('restaurant ID is required')
+    .isUUID().withMessage('id must be uuid'),
+    body('quantity').notEmpty().withMessage('Quantity is required').isInt().withMessage('Quantity must be a valid integer'),
+]
 module.exports = {
   validateSignUp,
-  validateLogin
+  validateLogin,
+  validateCart
 };

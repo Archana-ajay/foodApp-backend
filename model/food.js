@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // Define the Food Schema
 const foodSchema = new mongoose.Schema({
@@ -7,4 +7,4 @@ const foodSchema = new mongoose.Schema({
     photoUrl: String,
 });
 
-module.exports = mongoose.model('Food', foodSchema);
+module.exports = mongoose.model("Food", foodSchema);

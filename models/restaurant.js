@@ -1,4 +1,4 @@
-const { Model } = require('sequelize');
+const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
     class Restaurant extends Model {
@@ -6,21 +6,18 @@ module.exports = (sequelize, DataTypes) => {
         // This method is not a part of Sequelize lifecycle.
         // The `models/index` file will call this method automatically.
         static associate(model) {
-            
-            Restaurant.hasMany(model.Cart, { foreignKey: 'id' });
-            
+            Restaurant.hasMany(model.Cart, { foreignKey: "id" });
         }
     }
     Restaurant.init(
         {
-            id:{
-                type:DataTypes.UUID,
-                defaultValue:DataTypes.UUIDV4,
-                primaryKey:true
-                
+            id: {
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
+                primaryKey: true,
             },
-            restaurantId:{
-               type:DataTypes.INTEGER,
+            restaurantId: {
+                type: DataTypes.INTEGER,
             },
             categoryName: {
                 type: DataTypes.STRING,
@@ -37,23 +34,23 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.BIGINT,
                 allowNull: false,
             },
-            availability:{
-                type: DataTypes.BOOLEAN
+            availability: {
+                type: DataTypes.BOOLEAN,
             },
-            photoUrl:{
-                type: DataTypes.TEXT
+            photoUrl: {
+                type: DataTypes.TEXT,
             },
-            openingHours:{
-                type: DataTypes.STRING
+            openingHours: {
+                type: DataTypes.STRING,
             },
-            categoryId:{
-                type: DataTypes.INTEGER
-            }
+            categoryId: {
+                type: DataTypes.INTEGER,
+            },
         },
         {
             sequelize,
             modelName: Restaurant.name,
-            tableName: 'Restaurants',
+            tableName: "Restaurants",
             timestamps: true,
         }
     );

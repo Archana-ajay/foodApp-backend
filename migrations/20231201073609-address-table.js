@@ -3,28 +3,30 @@ const { sequelize } = require("../models");
 module.exports = {
     async up(queryInterface, Sequelize) {
         return Promise.all([
-            await queryInterface.createTable("Users", {
+            await queryInterface.createTable("Address", {
                 id: {
                     allowNull: false,
                     primaryKey: true,
                     type: Sequelize.UUID,
                 },
-                username: {
-                    type: Sequelize.STRING,
+                userId: {
+                    type: Sequelize.UUID,
                     allowNull: false,
                 },
-                email: {
+                address: {
                     type: Sequelize.STRING,
-                    unique: true,
-                    allowNull: false,
                 },
-                password: {
+                city: {
                     type: Sequelize.STRING,
-                    allowNull: false,
                 },
-                mobileNumber: {
+                country: {
+                    type: Sequelize.STRING,
+                },
+                state: {
+                    type: Sequelize.STRING,
+                },
+                postalCode: {
                     type: Sequelize.BIGINT,
-                    allowNull: false,
                 },
                 createdAt: {
                     type: Sequelize.DATE,
@@ -38,7 +40,8 @@ module.exports = {
         ]);
     },
 
+    // eslint-disable-next-line no-unused-vars
     async down(queryInterface, Sequelize) {
-        return queryInterface.dropTable("Users");
+        return queryInterface.dropTable("Address");
     },
 };

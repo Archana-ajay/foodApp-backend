@@ -1,38 +1,37 @@
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 
 const UserSchema = new mongoose.Schema({
     userName: {
         type: String,
-        required: [true, 'Please provide name'],
+        required: [true, "Please provide name"],
     },
     email: {
         type: String,
-        required: [true, 'Please provide email'],
+        required: [true, "Please provide email"],
         unique: true,
     },
     phoneNumber: {
         type: String,
-        required: true
-      },
+        required: true,
+    },
     password: {
         type: String,
-        required: [true, 'Please provide password'],
+        required: [true, "Please provide password"],
     },
     cart: {
         items: [
-          {
-            restaurantID: {
-              type: mongoose.Types.ObjectId,
-              ref: 'Restaurant',
-              required: true
+            {
+                restaurantID: {
+                    type: mongoose.Types.ObjectId,
+                    ref: "Restaurant",
+                    required: true,
+                },
+                quantity: { type: Number, required: true },
             },
-            quantity: { type: Number, required: true }
-          }
-        ]
-      }
+        ],
+    },
 });
-
 
 UserSchema.methods.createJWT = function () {
     return jwt.sign(
@@ -44,4 +43,4 @@ UserSchema.methods.createJWT = function () {
     );
 };
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model("User", UserSchema);

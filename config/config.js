@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 module.exports = {
     production: {
         username: process.env.DB_USERNAME,
@@ -7,7 +7,7 @@ module.exports = {
         host: process.env.DB_HOST,
         port: process.env.DB_PORT || 5432,
         dialect: process.env.DB_DIALECT,
-        seederStorage: 'sequelize',
+        seederStorage: "sequelize",
         dialectOptions: { decimalNumbers: true },
         logging: false,
         pool: {
@@ -24,7 +24,7 @@ module.exports = {
         host: process.env.DB_HOST,
         port: process.env.DB_PORT || 5432,
         dialect: process.env.DB_DIALECT,
-        seederStorage: 'sequelize',
+        seederStorage: "sequelize",
         dialectOptions: { decimalNumbers: true },
         logging: false,
         pool: {
@@ -41,7 +41,7 @@ module.exports = {
         host: process.env.DB_HOST,
         port: process.env.DB_PORT || 5432,
         dialect: process.env.DB_DIALECT,
-        seederStorage: 'sequelize',
+        seederStorage: "sequelize",
         dialectOptions: { decimalNumbers: true },
         logging: false,
         pool: {
